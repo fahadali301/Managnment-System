@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRF Custom User Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #4a5568;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin-top: 8px;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background-color: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .error {
+            background-color: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+        }
+
+        .debug-info {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .debug-info h3 {
+            margin-bottom: 15px;
+            color: #2d3748;
+            font-size: 18px;
+        }
+
+        .debug-info ul {
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+
+        .debug-info li {
+            margin-bottom: 10px;
+            color: #4a5568;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #718096;
+            font-size: 14px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .troubleshoot-toggle {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .troubleshoot-toggle button {
+            background: none;
+            color: #667eea;
+            text-decoration: underline;
+            padding: 5px;
+            width: auto;
+            font-size: 14px;
+        }
+
+        .troubleshoot-content {
+            display: none;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Custom User Login</h1>
+            <p>Django REST Framework with Custom User Model</p>
+        </div>
+
+        <div class="form-container">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter your username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+
+                <button type="submit">Login</button>
+            </form>
+
+            <div id="message" class="message"></div>
+
+            <div class="troubleshoot-toggle">
+                <button id="troubleshootBtn">Having issues? Click here for troubleshooting</button>
+            </div>
+
+            <div id="troubleshootContent" class="troubleshoot-content">
+                <div class="debug-info">
+                    <h3>Common Solutions for "Invalid Credentials" Error:</h3>
+                    <ul>
+                        <li>Ensure you've created a user in Django (using <code>python manage.py createsuperuser</code>)</li>
+                        <li>Check that your user is active in the Django admin panel</li>
+                        <li>Verify that you're using the correct username and password</li>
+                        <li>Make sure your custom user model is properly configured in settings.py</li>
+                        <li>Check that your authentication endpoints are correctly set up in urls.py</li>
+                        <li>Ensure you've run migrations after creating your custom user model</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Django REST Framework Authentication System</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                // In a real application, you would replace this with your actual API endpoint
+                const response = await fetch('/api/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                const messageDiv = document.getElementById('message');
+
+                if (response.ok) {
+                    messageDiv.textContent = 'Login successful! Redirecting...';
+                    messageDiv.className = 'message success';
+                    messageDiv.style.display = 'block';
+
+                    // Simulate redirect
+                    setTimeout(() => {
+                        messageDiv.textContent = 'Login successful! Token: ' + data.token;
+                    }, 1500);
+
+                    console.log('Login successful:', data);
+                } else {
+                    messageDiv.textContent = `Error: ${data.non_field_errors ? data.non_field_errors[0] : 'Please check your credentials'}`;
+                    messageDiv.className = 'message error';
+                    messageDiv.style.display = 'block';
+                    console.error('Login failed:', data);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                const messageDiv = document.getElementById('message');
+                messageDiv.textContent = 'Network error. Please check if the server is running.';
+                messageDiv.className = 'message error';
+                messageDiv.style.display = 'block';
+            }
+        });
+
+        // Troubleshooting toggle
+        document.getElementById('troubleshootBtn').addEventListener('click', function() {
+            const content = document.getElementById('troubleshootContent');
+            content.style.display = content.style.display === 'none' || content.style.display === '' ? 'block' : 'none';
+        });
+
+        // Simulate a login attempt with placeholder data
+        function simulateLogin() {
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'password123';
+        }
+
+        // Uncomment the line below to auto-fill sample credentials for testing
+        // simulateLogin();
+    </script>
+</body>
+</html>
