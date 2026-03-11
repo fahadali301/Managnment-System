@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.views.generic import TemplateView, RedirectView
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -25,4 +26,12 @@ urlpatterns = [
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
+    # Frontend page views
+    path('', RedirectView.as_view(url='/login/', permanent=False), name='home'),
+    path('login/', TemplateView.as_view(template_name='login.html'), name='login'),
+    path('register/', TemplateView.as_view(template_name='register.html'), name='register'),
+    path('dashboard/', TemplateView.as_view(template_name='dashboard.html'), name='dashboard'),
+    path('companies/', TemplateView.as_view(template_name='companies/list.html'), name='companies'),
+    path('employees/', TemplateView.as_view(template_name='employees/list.html'), name='employees'),
 ]

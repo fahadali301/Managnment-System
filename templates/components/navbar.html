@@ -1,0 +1,60 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <i class="fas fa-briefcase"></i> Management System
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard' %}">
+                        <i class="fas fa-chart-line me-1"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'companies' %}">
+                        <i class="fas fa-building me-1"></i>Companies
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'employees' %}">
+                        <i class="fas fa-users me-1"></i>Employees
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#"
+                       id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Account</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'login' %}">
+                                <i class="fas fa-sign-in-alt me-2 text-primary"></i>Login
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'register' %}">
+                                <i class="fas fa-user-plus me-2 text-success"></i>Register
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item logout-link" href="#">
+                                <i class="fas fa-sign-out-alt me-2 text-danger"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
