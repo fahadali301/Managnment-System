@@ -1,0 +1,312 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}University Admin Portal{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, rgba(15, 32, 39, 0.98), rgba(32, 58, 67, 0.98));
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h5 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .sidebar-header p {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sidebar-nav {
+            padding: 15px 0;
+        }
+
+        .nav-section-title {
+            padding: 10px 15px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(56, 189, 248, 0.15);
+            color: #fff;
+            border-left: 3px solid #00c6ff;
+            padding-left: 12px;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .topbar h6 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-profile img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+        }
+
+        .page-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .glass-panel {
+            backdrop-filter: blur(18px);
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            border: none;
+            color: #fff;
+            transition: all 0.3s;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 114, 255, 0.5);
+            color: #fff;
+        }
+
+        .metric-card {
+            padding: 20px;
+        }
+
+        .metric-label {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 13px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0 5px;
+        }
+
+        .table-custom {
+            color: #fff;
+        }
+
+        .table-custom thead th {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+            color: #86efac;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .table-custom tbody td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 15px;
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .form-control-custom {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: 10px;
+        }
+
+        .form-control-custom::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-control-custom:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #00c6ff;
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 198, 255, 0.25);
+        }
+
+        .form-label-custom {
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                transition: width 0.3s ease;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .page-content {
+                padding: 15px;
+            }
+
+            .topbar {
+                padding: 15px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h5>University Suite</h5>
+        <p>Admin Portal v1.0</p>
+    </div>
+    <div class="sidebar-nav">
+        <div class="nav-section-title">Main</div>
+        <a href="/dashboard/"><i class="fas fa-gauge-high"></i> Dashboard</a>
+
+        <div class="nav-section-title">Academics</div>
+        <a href="/admin/academics/university/"><i class="fas fa-building"></i> Universities</a>
+        <a href="/admin/academics/department/"><i class="fas fa-layer-group"></i> Departments</a>
+        <a href="/admin/academics/program/"><i class="fas fa-book"></i> Programs</a>
+        <a href="/admin/academics/term/"><i class="fas fa-calendar"></i> Terms</a>
+        <a href="/admin/academics/course/"><i class="fas fa-graduation-cap"></i> Courses</a>
+        <a href="/admin/academics/section/"><i class="fas fa-users"></i> Sections</a>
+
+        <div class="nav-section-title">Students</div>
+        <a href="/students/"><i class="fas fa-user-graduate"></i> Student Profiles</a>
+        <a href="/enrollments/"><i class="fas fa-list-check"></i> Enrollments</a>
+
+        <div class="nav-section-title">Admin</div>
+        <a href="/admin/company/user/"><i class="fas fa-user-tie"></i> Users</a>
+        <a href="/admin/"><i class="fas fa-cogs"></i> Admin Panel</a>
+
+        <div class="nav-section-title">Account</div>
+        <a href="/api/v1/auth/profile/"><i class="fas fa-user-circle"></i> Profile</a>
+        <a href="/login/" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="topbar">
+        <h6>{% block page_title %}Dashboard{% endblock %}</h6>
+        <div class="topbar-right">
+            <span><i class="fas fa-bell"></i></span>
+            <div class="user-profile">
+                <svg width="35" height="35" viewBox="0 0 35 35" style="border-radius: 50%;">
+                    <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00c6ff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#0072ff;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="17.5" cy="17.5" r="17.5" fill="url(#grad)"/>
+                    <text x="17.5" y="22" text-anchor="middle" fill="white" font-weight="bold" font-size="14">A</text>
+                </svg>
+                <span>Admin</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
+

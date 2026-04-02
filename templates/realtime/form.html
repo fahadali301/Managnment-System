@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Add {{ item_label }}{% endblock %}
+{% block page_name %}{{ page_name }}{% endblock %}
+{% block page_title %}Add {{ item_label }}{% endblock %}
+
+{% block content %}
+<div id="realtime-form" data-resource="{{ resource }}" data-endpoint="{{ endpoint }}" data-redirect="{{ list_url }}">
+    <div class="panel-card mb-3">
+        <h5 class="mb-1">New {{ item_label }}</h5>
+        <p class="text-muted mb-0">Save directly to API or automatically switch to local mode if endpoint is unavailable.</p>
+    </div>
+
+    <div class="panel-card">
+        <form id="entity-form">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Name</label>
+                    <input class="form-control" name="name" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Description</label>
+                    <input class="form-control" name="description">
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <button type="submit" class="btn btn-gradient">Save</button>
+                <a href="{{ list_url }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+        <div id="form-message" class="alert mt-3" style="display:none;"></div>
+    </div>
+</div>
+{% endblock %}

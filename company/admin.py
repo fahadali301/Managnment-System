@@ -1,13 +1,30 @@
 from django.contrib import admin
-from .models import Company,Branch,Building,Floor,Room,Asset,User,Role,Permissions
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+
+from .models import User
 
 
-admin.site.register(Company)
-admin.site.register(Permissions)
-admin.site.register(Role)
-admin.site.register(User)
-admin.site.register(Branch)
-admin.site.register(Building)
-admin.site.register(Floor)
-admin.site.register(Room)
-admin.site.register(Asset)
+@admin.register(User)
+class UserAdmin(DjangoUserAdmin):
+    list_display = ("id", "username", "email", "full_name", "is_staff", "is_active")
+    search_fields = ("username", "email", "full_name", "phone")
+    list_filter = ("is_staff", "is_superuser", "is_active")
+    ordering = ("id",)
+
+    fieldsets = DjangoUserAdmin.fieldsets + (
+        (
+            "Profile",
+            {
+                "fields": (
+                    "full_name",
+                    "phone",
+                    "address",
+                    "city",
+                    "state",
+                    "country",
+                    "postal_code",
+                )
+            },
+        ),
+    )
+
