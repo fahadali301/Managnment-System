@@ -1,0 +1,378 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block title %}Programs | University Admin Portal{% endblock %}
+{% block page_title %}Academic Programs{% endblock %}
+{% block extra_css %}
+<style>
+    .program-card {
+        transition: all 0.3s ease;
+    }
+    .program-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 60px rgba(0, 198, 255, 0.2);
+    }
+    .program-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .program-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    .program-header {
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        padding: 15px;
+        border-radius: 10px 10px 0 0;
+    }
+    .program-info {
+        padding: 20px;
+    }
+    .program-stats {
+        display: flex;
+        justify-content: space-around;
+        padding: 15px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 15px;
+    }
+    .stat-item {
+        text-align: center;
+    }
+    .stat-number {
+        font-size: 20px;
+        font-weight: 700;
+        color: #86efac;
+    }
+    .stat-label {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 4px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h5><i class="fas fa-book"></i> Academic Programs</h5>
+            <p class="text-muted" style="font-size: 14px; margin-top: 5px;">Browse and manage all university programs and courses</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="input-group" style="max-width: 250px; margin-left: auto;">
+                <input type="text" class="form-control form-control-custom" id="searchInput" placeholder="Search programs...">
+                <button class="btn btn-gradient" onclick="loadPrograms()"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </div>
+    <!-- Filter & Controls -->
+    <div class="glass-panel p-3 mb-4">
+        <div class="row">
+            <div class="col-md-3">
+                <label class="form-label-custom" style="font-size: 12px;">Filter by University</label>
+                <select class="form-control form-control-custom" id="filterUniversity" onchange="loadPrograms()">
+                    <option value="">All Universities</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label-custom" style="font-size: 12px;">Filter by Department</label>
+                <select class="form-control form-control-custom" id="filterDepartment" onchange="loadPrograms()">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label-custom" style="font-size: 12px;">Duration</label>
+                <select class="form-control form-control-custom" id="filterDuration" onchange="loadPrograms()">
+                    <option value="">All Durations</option>
+                    <option value="2">2 Years</option>
+                    <option value="3">3 Years</option>
+                    <option value="4">4 Years</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <label class="form-label-custom" style="font-size: 12px;">&nbsp;</label>
+                <button class="btn btn-gradient w-100" data-bs-toggle="modal" data-bs-target="#addProgramModal">
+                    <i class="fas fa-plus"></i> Add Program
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Programs Grid -->
+    <div class="program-grid" id="programsGrid">
+        <div class="glass-panel" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 32px;"></i>
+            <p style="margin-top: 15px;">Loading programs...</p>
+        </div>
+    </div>
+</div>
+<!-- Add Program Modal -->
+<div class="modal fade" id="addProgramModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Program</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProgramForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Department</label>
+                            <select class="form-control form-control-custom" id="departmentSelect" required>
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Program Name</label>
+                            <input type="text" class="form-control form-control-custom" id="programName" placeholder="e.g., Bachelor of Science in Computer Science" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Program Code</label>
+                            <input type="text" class="form-control form-control-custom" id="programCode" placeholder="e.g., BSCS" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Duration (Years)</label>
+                            <input type="number" class="form-control form-control-custom" id="durationYears" min="1" max="8" value="4" required>
+                        </div>
+                    </div>
+                    <div id="programMsg" class="alert d-none" role="alert"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-gradient" onclick="saveProgram()">Save Program</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Program Detail Modal -->
+<div class="modal fade" id="programDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailTitle">Program Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="programDetail"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+const token = localStorage.getItem('access');
+async function loadPrograms() {
+    try {
+        const response = await fetch('/api/v1/academics/programs/', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const programs = await response.json();
+        const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const univFilter = document.getElementById('filterUniversity')?.value || '';
+        const deptFilter = document.getElementById('filterDepartment')?.value || '';
+        const durationFilter = document.getElementById('filterDuration')?.value || '';
+        let filtered = programs.filter(p => {
+            const matchSearch = !search || p.name.toLowerCase().includes(search) || p.code.toLowerCase().includes(search);
+            const matchUniv = !univFilter || p.department?.university?.id == univFilter;
+            const matchDept = !deptFilter || p.department?.id == deptFilter;
+            const matchDuration = !durationFilter || p.duration_years == durationFilter;
+            return matchSearch && matchUniv && matchDept && matchDuration;
+        });
+        const grid = document.getElementById('programsGrid');
+        if (filtered.length === 0) {
+            grid.innerHTML = `<div class="glass-panel" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                <i class="fas fa-search" style="font-size: 32px; color: rgba(255,255,255,0.3);"></i>
+                <p style="margin-top: 15px; color: rgba(255,255,255,0.6);">No programs found</p>
+            </div>`;
+            return;
+        }
+        grid.innerHTML = filtered.map(p => `
+            <div class="glass-panel program-card">
+                <div class="program-header">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h6 style="margin: 0; font-weight: 600;">${p.code}</h6>
+                            <p style="margin: 4px 0 0; font-size: 12px; opacity: 0.9;">${p.department?.name || 'N/A'}</p>
+                        </div>
+                        <span class="program-badge" style="background: rgba(255,255,255,0.2); color: #fff;">${p.duration_years} Yrs</span>
+                    </div>
+                </div>
+                <div class="program-info">
+                    <h6 style="margin: 0; font-size: 15px; font-weight: 600;">${p.name}</h6>
+                    <p style="margin: 8px 0; font-size: 12px; color: rgba(255,255,255,0.7);">
+                        <i class="fas fa-building"></i> ${p.department?.university?.name || 'N/A'}
+                    </p>
+                    <div class="program-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">4</div>
+                            <div class="stat-label">Semesters</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">120</div>
+                            <div class="stat-label">Credit Hours</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">25+</div>
+                            <div class="stat-label">Courses</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 15px;">
+                        <button class="btn btn-sm btn-gradient flex-grow-1" onclick="viewProgramDetail(${p.id})">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-sm btn-outline-light flex-grow-1" onclick="editProgram(${p.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProgram(${p.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('programsGrid').innerHTML = '<div class="glass-panel" style="grid-column: 1 / -1; padding: 40px; color: #ff6b6b;">Error loading programs</div>';
+    }
+}
+async function loadFilters() {
+    try {
+        const univResponse = await fetch('/api/v1/academics/universities/', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const universities = await univResponse.json();
+        const univSelect = document.getElementById('filterUniversity');
+        universities.forEach(u => {
+            const option = document.createElement('option');
+            option.value = u.id;
+            option.text = u.name;
+            univSelect.appendChild(option);
+        });
+        const deptResponse = await fetch('/api/v1/academics/departments/', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const departments = await deptResponse.json();
+        const deptSelect = document.getElementById('filterDepartment');
+        departments.forEach(d => {
+            const option = document.createElement('option');
+            option.value = d.id;
+            option.text = d.name;
+            deptSelect.appendChild(option);
+        });
+        const deptSelectAdd = document.getElementById('departmentSelect');
+        departments.forEach(d => {
+            const option = document.createElement('option');
+            option.value = d.id;
+            option.text = `${d.name} (${d.university?.name || 'N/A'})`;
+            deptSelectAdd.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading filters:', error);
+    }
+}
+async function saveProgram() {
+    const form = {
+        department: document.getElementById('departmentSelect').value,
+        name: document.getElementById('programName').value,
+        code: document.getElementById('programCode').value,
+        duration_years: document.getElementById('durationYears').value,
+    };
+    try {
+        const response = await fetch('/api/v1/academics/programs/', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(form),
+        });
+        const msg = document.getElementById('programMsg');
+        if (response.ok) {
+            msg.className = 'alert alert-success';
+            msg.textContent = 'Program added successfully!';
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('addProgramModal')).hide();
+                loadPrograms();
+            }, 1500);
+        } else {
+            msg.className = 'alert alert-danger';
+            msg.textContent = 'Error adding program';
+        }
+    } catch (error) {
+        document.getElementById('programMsg').className = 'alert alert-danger';
+        document.getElementById('programMsg').textContent = 'Error: ' + error.message;
+    }
+}
+async function viewProgramDetail(id) {
+    try {
+        const response = await fetch(`/api/v1/academics/programs/${id}/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const program = await response.json();
+        const courseResponse = await fetch(`/api/v1/academics/courses/?program=${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const courses = await courseResponse.json();
+        document.getElementById('detailTitle').textContent = program.code + ' - ' + program.name;
+        document.getElementById('programDetail').innerHTML = `
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label-custom">Program Name</label>
+                    <p>${program.name}</p>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-custom">Program Code</label>
+                    <p>${program.code}</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label-custom">Department</label>
+                    <p>${program.department?.name || 'N/A'}</p>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label-custom">Duration</label>
+                    <p>${program.duration_years} Years</p>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label-custom">Courses (${courses.length})</label>
+                <ul style="list-style: none; padding: 0;">
+                    ${courses.map(c => `<li style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <strong>${c.code}</strong> - ${c.name} (${c.credit_hours} hrs)
+                    </li>`).join('')}
+                </ul>
+            </div>
+        `;
+        new bootstrap.Modal(document.getElementById('programDetailModal')).show();
+    } catch (error) {
+        alert('Error loading program details');
+    }
+}
+async function editProgram(id) {
+    alert('Edit functionality coming soon');
+}
+async function deleteProgram(id) {
+    if (!confirm('Delete this program? All associated courses will remain.')) return;
+    try {
+        await fetch(`/api/v1/academics/programs/${id}/`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` },
+        });
+        loadPrograms();
+    } catch (error) {
+        alert('Error deleting program');
+    }
+}
+// Load on page init
+loadFilters();
+loadPrograms();
+// Search on input
+document.getElementById('searchInput')?.addEventListener('keyup', loadPrograms);
+</script>
+{% endblock %}

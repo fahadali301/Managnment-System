@@ -1,15 +1,62 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
-    <title>Base Layout</title>
+    <title>{% block title %}University Admin Portal{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    {% block head_extra %}{% endblock %}
 </head>
-<body>
-    <div class="container">
-        <h1>Base Template</h1>
-        <!-- Bootstrap and other content here -->
-    </div>
+<body class="portal-body" data-page="{% block page_name %}app{% endblock %}">
+<div class="portal-shell" id="portal-shell">
+    <aside class="portal-sidebar" id="portal-sidebar">
+        <div class="brand-block">
+            <h5 class="mb-1 text-white">University Suite</h5>
+            <p class="small text-secondary mb-0">Enterprise Admin Console</p>
+        </div>
+
+        <div class="nav-section-title">Core</div>
+        <a href="/dashboard/">Executive Dashboard</a>
+        <a href="/api/v1/academics/universities/">Universities API</a>
+        <a href="/api/v1/academics/departments/">Departments API</a>
+        <a href="/api/v1/students/profiles/">Students API</a>
+
+        <div class="nav-section-title">Legacy Modules</div>
+        <a href="/companies/">Companies</a>
+        <a href="/branches/">Branches</a>
+        <a href="/assets/">Assets</a>
+        <a href="/users/">Users</a>
+
+        <div class="nav-section-title">Access</div>
+        <a href="/login/">Login</a>
+        <a href="/register/">Register</a>
+    </aside>
+
+    <main class="portal-main">
+        <nav class="portal-navbar">
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-secondary d-lg-none" id="sidebar-toggle" type="button" aria-label="Toggle menu">Menu</button>
+                <span class="navbar-brand mb-0 h5">{% block page_title %}University Management{% endblock %}</span>
+            </div>
+            <div class="small text-muted d-flex align-items-center gap-2">
+                <span id="sync-indicator" class="status-dot status-offline"></span>
+                <span id="sync-text">Waiting</span>
+            </div>
+        </nav>
+        <section class="portal-content">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+</div>
+
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/api.js' %}"></script>
+<script src="{% static 'js/main.js' %}"></script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

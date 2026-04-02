@@ -1,0 +1,224 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}Student Profiles | University Admin Portal{% endblock %}
+{% block page_title %}Student Profiles{% endblock %}
+
+{% block extra_css %}
+<style>
+    .modal-content {
+        background: rgba(15, 32, 39, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-title {
+        color: #fff;
+    }
+
+    .btn-close {
+        filter: invert(1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h5><i class="fas fa-user-graduate"></i> Manage Students</h5>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-gradient" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                <i class="fas fa-plus"></i> Add New Student
+            </button>
+        </div>
+    </div>
+
+    <div class="glass-panel p-4">
+        <div class="table-responsive">
+            <table class="table table-custom" id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Program</th>
+                        <th>Semester</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="studentsBody">
+                    <tr>
+                        <td colspan="7" class="text-center py-4">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Student Modal -->
+<div class="modal fade" id="addStudentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Student</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addStudentForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">User</label>
+                            <select class="form-control form-control-custom" id="userId" required>
+                                <option value="">Select User</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Student ID</label>
+                            <input type="text" class="form-control form-control-custom" id="studentId" placeholder="STU-2026-0001" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">University</label>
+                            <select class="form-control form-control-custom" id="university" required>
+                                <option value="">Select University</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Program</label>
+                            <select class="form-control form-control-custom" id="program" required>
+                                <option value="">Select Program</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Current Semester</label>
+                            <input type="number" class="form-control form-control-custom" id="semester" min="1" max="8" value="1" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Status</label>
+                            <select class="form-control form-control-custom" id="isActive">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="formMessage" class="alert d-none" role="alert"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-gradient" onclick="saveStudent()">Save Student</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const token = localStorage.getItem('access');
+
+async function loadStudents() {
+    try {
+        const response = await fetch('/api/v1/students/profiles/', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const students = await response.json();
+
+        const tbody = document.getElementById('studentsBody');
+        if (students.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4">No students found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = students.map(s => `
+            <tr>
+                <td>${s.student_id}</td>
+                <td>${s.user_name || 'N/A'}</td>
+                <td>${s.user_email || 'N/A'}</td>
+                <td>${s.program_name || 'N/A'}</td>
+                <td>${s.current_semester}</td>
+                <td>
+                    <span class="badge ${s.is_active ? 'bg-success' : 'bg-danger'}">
+                        ${s.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-outline-light" onclick="editStudent(${s.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteStudent(${s.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('studentsBody').innerHTML = '<tr><td colspan="7" class="text-danger">Error loading students</td></tr>';
+    }
+}
+
+async function saveStudent() {
+    const form = {
+        user: document.getElementById('userId').value,
+        university: document.getElementById('university').value,
+        program: document.getElementById('program').value,
+        student_id: document.getElementById('studentId').value,
+        current_semester: document.getElementById('semester').value,
+        is_active: document.getElementById('isActive').value === 'true',
+    };
+
+    try {
+        const response = await fetch('/api/v1/students/profiles/', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(form),
+        });
+
+        const msg = document.getElementById('formMessage');
+        if (response.ok) {
+            msg.className = 'alert alert-success';
+            msg.textContent = 'Student added successfully!';
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('addStudentModal')).hide();
+                loadStudents();
+            }, 1500);
+        } else {
+            const err = await response.json();
+            msg.className = 'alert alert-danger';
+            msg.textContent = Object.values(err)[0] || 'Error adding student';
+        }
+    } catch (error) {
+        document.getElementById('formMessage').className = 'alert alert-danger';
+        document.getElementById('formMessage').textContent = 'Error: ' + error.message;
+    }
+}
+
+async function deleteStudent(id) {
+    if (!confirm('Delete this student?')) return;
+    try {
+        await fetch(`/api/v1/students/profiles/${id}/`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` },
+        });
+        loadStudents();
+    } catch (error) {
+        alert('Error deleting student');
+    }
+}
+
+loadStudents();
+</script>
+{% endblock %}
+

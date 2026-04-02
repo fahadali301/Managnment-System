@@ -226,7 +226,7 @@
 
             try {
                 // In a real application, you would replace this with your actual API endpoint
-                const response = await fetch('/api/token/', {
+                const response = await fetch('/api/login/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -244,7 +244,7 @@
 
                     // Simulate redirect
                     setTimeout(() => {
-                        messageDiv.textContent = 'Login successful! Token: ' + data.token;
+                        messageDiv.textContent = 'Login successful! Access token: ' + data.access;
                     }, 1500);
 
                     console.log('Login successful:', data);

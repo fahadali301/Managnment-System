@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block page_name %}{{ page_name }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div id="realtime-list" data-resource="{{ resource }}" data-endpoint="{{ endpoint }}">
+    <div class="panel-card mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h5 class="mb-1">{{ page_title }}</h5>
+            <p class="text-muted mb-0">Live records pulled from API with local fallback mode.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button id="btn-refresh" class="btn btn-outline-primary">Refresh</button>
+            <a class="btn btn-gradient" href="{{ form_url }}">Add {{ item_label }}</a>
+        </div>
+    </div>
+
+    <div class="panel-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Details</th>
+                        <th>Updated</th>
+                    </tr>
+                </thead>
+                <tbody id="list-body">
+                    <tr><td colspan="4" class="text-center text-muted py-4">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="list-status" class="small text-muted mt-2"></div>
+    </div>
+</div>
+{% endblock %}

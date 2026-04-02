@@ -1,65 +1,13 @@
-from django.contrib.auth.models import AbstractUser, Group
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-class Company(models.Model):
-    name = models.CharField(max_length=100)
-    address = models.CharField(max_length=100)
-    city = models.CharField(max_length=100)
-
-
-class Branch(models.Model):
-    name = models.CharField(max_length=100)
-    address = models.CharField(max_length=100)
-    city = models.CharField(max_length=100)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-
-
-
-class Building(models.Model):
-    name = models.CharField(max_length=100)
-    address = models.CharField(max_length=100)
-    city = models.CharField(max_length=100)
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
-
-
-class Floor(models.Model):
-    Floor_name = models.CharField(max_length=100)
-    building = models.ForeignKey(Building, on_delete=models.CASCADE)
-
-
-class Room(models.Model):
-    name = models.CharField(max_length=100)
-    floor = models.ForeignKey(Floor, on_delete=models.CASCADE)
-
-class Asset(models.Model):
-    name = models.CharField(max_length=100)
-    status = models.CharField(max_length=100)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-
-
-class Permissions(models.Model):
-    permission = models.CharField(max_length=100)
-    codename = models.CharField(max_length=100,default='')
-
-
-
-class Role(models.Model):
-    ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('manager', 'Manager'),
-        ('employee', 'Employee'),
-    ]
-    role = models.CharField(
-        max_length=100,
-        choices=ROLE_CHOICES,
-        null=False,
-        blank=False,
-    )
-    permissions = models.ManyToManyField(Permissions, related_name='roles')
-
-
 
 class User(AbstractUser):
+    full_name = models.CharField(max_length=255, blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    city = models.CharField(max_length=50, blank=True)
+    state = models.CharField(max_length=50, blank=True)
+    country = models.CharField(max_length=50, blank=True)
+    postal_code = models.CharField(max_length=20, blank=True)
 
-    address = models.CharField(max_length=255, default='Unknown')
-    role = models.ForeignKey(Role, on_delete=models.CASCADE,default=1)
 
